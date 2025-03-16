@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+const API_KEY = process.env.REACT_APP_USDA_API_KEY;
+const API_ENDPOINT = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+
 function FoodSearch({ onSelectFood }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -9,10 +12,18 @@ function FoodSearch({ onSelectFood }) {
     if (!term) return;
     setLoading(true);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`YOUR_FOOD_API_ENDPOINT?query=${term}`);
+      const response = await fetch(`${API_ENDPOINT}?api_key=${API_KEY}&query=${term}`);
       const data = await response.json();
-      setSearchResults(data);
+      
+      const formattedResults = data.foods.map(food => ({
+        id: food.fdcId,
+        name: food.description,
+        protein: food.foodNutrients.find(n => n.nutrientName === 'Protein')?.value || 0,
+        carbs: food.foodNutrients.find(n => n.nutrientName === 'Carbohydrate')?.value || 0,
+        fats: food.foodNutrients.find(n => n.nutrientName === 'Total lipid (fat)')?.value || 0
+      }));
+
+      setSearchResults(formattedResults);
     } catch (error) {
       console.error('Error searching foods:', error);
     }
