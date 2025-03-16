@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Kbell---foodtrackerapp/static/css/main.e46e4e54.css",
+    "main.js": "/Kbell---foodtrackerapp/static/js/main.f7d10083.js",
+    "index.html": "/Kbell---foodtrackerapp/index.html",
+    "main.e46e4e54.css.map": "/Kbell---foodtrackerapp/static/css/main.e46e4e54.css.map",
+    "main.f7d10083.js.map": "/Kbell---foodtrackerapp/static/js/main.f7d10083.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e46e4e54.css",
+    "static/js/main.f7d10083.js"
+  ]
+}

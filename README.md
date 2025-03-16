@@ -2,6 +2,9 @@
 
 A React application for tracking daily and weekly macro nutrients.
 
+## Live Demo
+Try it out: [Macro Tracker App](https://kettlebell319.github.io/Kbell---foodtrackerapp)
+
 ## Features
 - Track protein, carbs, and fats for each meal
 - View daily macro totals
