@@ -4,6 +4,8 @@ import MacroSummary from './components/MacroSummary';
 import './App.css';
 
 function App() {
+  const mealCategories = ['breakfast', 'lunch', 'dinner', 'snacks'];
+
   const [meals, setMeals] = useState(() => {
     // Load saved meals from localStorage
     const savedMeals = localStorage.getItem('meals');
@@ -37,6 +39,60 @@ function App() {
 
   const getTodaysMeals = () => {
     return meals.filter(meal => meal.date === selectedDate);
+  };
+
+  const groupMealsByCategory = () => {
+    const todaysMeals = getTodaysMeals();
+    return mealCategories.map(category => ({
+      category,
+      meals: todaysMeals.filter(meal => meal.category === category)
+    }));
+  };
+
+  const calculateWeeklyStats = () => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const weekMeals = meals.filter(meal => {
+      const mealDate = new Date(meal.date);
+      return mealDate >= oneWeekAgo;
+    });
+
+    const dailyStats = {};
+    weekMeals.forEach(meal => {
+      if (!dailyStats[meal.date]) {
+        dailyStats[meal.date] = {
+          protein: 0,
+          carbs: 0,
+          fats: 0,
+          calories: 0,
+          mealCount: 0
+        };
+      }
+      dailyStats[meal.date].protein += meal.protein;
+      dailyStats[meal.date].carbs += meal.carbs;
+      dailyStats[meal.date].fats += meal.fats;
+      dailyStats[meal.date].calories += (meal.protein * 4) + (meal.carbs * 4) + (meal.fats * 9);
+      dailyStats[meal.date].mealCount += 1;
+    });
+
+    const daysWithMeals = Object.keys(dailyStats).length;
+    const totalStats = Object.values(dailyStats).reduce((acc, day) => ({
+      protein: acc.protein + day.protein,
+      carbs: acc.carbs + day.carbs,
+      fats: acc.fats + day.fats,
+      calories: acc.calories + day.calories
+    }), { protein: 0, carbs: 0, fats: 0, calories: 0 });
+
+    return {
+      total: totalStats,
+      daily: {
+        protein: totalStats.protein / daysWithMeals,
+        carbs: totalStats.carbs / daysWithMeals,
+        fats: totalStats.fats / daysWithMeals,
+        calories: totalStats.calories / daysWithMeals
+      }
+    };
   };
 
   return (
@@ -77,25 +133,49 @@ function App() {
 
       <FoodEntry onAddMeal={addMeal} />
       
-      <div className="meals-list">
-        <h2>Today's Foods</h2>
-        {getTodaysMeals().map(meal => (
-          <div key={meal.id} className="meal-item">
-            <span className="meal-name">{meal.name}</span>
-            <div className="macro-values">
-              <span>P: {meal.protein}g</span>
-              <span>C: {meal.carbs}g</span>
-              <span>F: {meal.fats}g</span>
-            </div>
-            <button onClick={() => deleteMeal(meal.id)}>Delete</button>
+      <div className="meals-by-category">
+        {groupMealsByCategory().map(({ category, meals }) => (
+          <div key={category} className="category-section">
+            <h3>{category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+            {meals.map(meal => (
+              <div key={meal.id} className="meal-item">
+                <span className="meal-name">{meal.name}</span>
+                <div className="macro-values">
+                  <span>P: {meal.protein}g</span>
+                  <span>C: {meal.carbs}g</span>
+                  <span>F: {meal.fats}g</span>
+                </div>
+                <button onClick={() => deleteMeal(meal.id)}>Delete</button>
+              </div>
+            ))}
           </div>
         ))}
       </div>
 
-      <MacroSummary 
-        meals={getTodaysMeals()} 
-        goals={macroGoals}
-      />
+      <div className="weekly-summary">
+        <h2>Weekly Overview</h2>
+        {(() => {
+          const stats = calculateWeeklyStats();
+          return (
+            <>
+              <div className="weekly-totals">
+                <h3>Weekly Totals</h3>
+                <p>Total Calories: {Math.round(stats.total.calories)}</p>
+                <p>Total Protein: {Math.round(stats.total.protein)}g</p>
+                <p>Total Carbs: {Math.round(stats.total.carbs)}g</p>
+                <p>Total Fats: {Math.round(stats.total.fats)}g</p>
+              </div>
+              <div className="daily-averages">
+                <h3>Daily Averages</h3>
+                <p>Average Calories: {Math.round(stats.daily.calories)}</p>
+                <p>Average Protein: {Math.round(stats.daily.protein)}g</p>
+                <p>Average Carbs: {Math.round(stats.daily.carbs)}g</p>
+                <p>Average Fats: {Math.round(stats.daily.fats)}g</p>
+              </div>
+            </>
+          );
+        })()}
+      </div>
     </div>
   );
 }
