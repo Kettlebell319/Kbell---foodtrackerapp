@@ -146,4 +146,69 @@
 .meal-name {
   font-weight: 500;
   min-width: 150px;
+}
+
+/* Food Search Styling */
+.food-search {
+  margin-bottom: 20px;
+}
+
+.search-input {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.search-input input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-results {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.food-result {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.food-result:hover {
+  background-color: #f0f0f0;
+}
+
+.food-macros {
+  display: flex;
+  gap: 10px;
+}
+
+/* Food Entry Container */
+.food-entry-container {
+  margin-bottom: 30px;
+}
+
+.food-entry select {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
+
+/* Category styling in meal list */
+.meal-category {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #666;
+  background-color: #e9ecef;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 10px;
 } 
