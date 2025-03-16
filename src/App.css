@@ -35,4 +35,115 @@
   padding: 20px;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.meals-list {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.meal-item span {
+  margin: 0 10px;
+}
+
+.meal-item button {
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.meal-item button:hover {
+  background-color: #c82333;
+}
+
+/* Date selector styling */
+.date-selector {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.date-selector input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* Macro goals styling */
+.macro-goals {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+}
+
+.goals-inputs {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.goals-inputs input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Progress bar styling */
+.macro-progress {
+  margin: 15px 0;
+}
+
+.macro-progress label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.progress-bar {
+  height: 20px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #007bff;
+  transition: width 0.3s ease;
+}
+
+/* Macro values styling */
+.macro-values {
+  display: flex;
+  gap: 15px;
+}
+
+.macro-values span {
+  background-color: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Meal name styling */
+.meal-name {
+  font-weight: 500;
+  min-width: 150px;
 } 
