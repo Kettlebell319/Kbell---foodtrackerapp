@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
-const API_KEY = process.env.REACT_APP_USDA_API_KEY;
-const API_ENDPOINT = 'https://api.nal.usda.gov/fdc/v1/foods/search';
+// Nutritionix API credentials
+const APP_ID = process.env.REACT_APP_NUTRITIONIX_APP_ID;
+const APP_KEY = process.env.REACT_APP_NUTRITIONIX_APP_KEY;
+const API_ENDPOINT = 'https://trackapi.nutritionix.com/v2/search/instant';
 
 function FoodSearch({ onSelectFood }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,32 +20,44 @@ function FoodSearch({ onSelectFood }) {
     if (!term) return;
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_ENDPOINT}?api_key=${API_KEY}&query=${term}&pageSize=10&dataType=Survey (FNDDS)`
-      );
-      const data = await response.json();
-      
-      const formattedResults = data.foods.map(food => {
-        const nutrients = food.foodNutrients.reduce((acc, nutrient) => {
-          if (nutrient.nutrientName === 'Protein') acc.protein = nutrient.value;
-          if (nutrient.nutrientName === 'Carbohydrate, by difference') acc.carbs = nutrient.value;
-          if (nutrient.nutrientName === 'Total lipid (fat)') acc.fats = nutrient.value;
-          return acc;
-        }, { protein: 0, carbs: 0, fats: 0 });
-
-        return {
-          id: food.fdcId,
-          name: food.description,
-          nutrients
-        };
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-app-id': APP_ID,
+          'x-app-key': APP_KEY,
+        },
+        body: JSON.stringify({
+          query: term,
+          detailed: true
+        })
       });
 
-      console.log('Search results:', formattedResults); // Add this for debugging
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Raw API response:', data);
+
+      const formattedResults = data.common.map(food => ({
+        id: food.food_name,
+        name: food.food_name,
+        brandOwner: 'Generic',
+        nutrients: {
+          protein: food.full_nutrients.find(n => n.attr_id === 203)?.value || 0,
+          carbs: food.full_nutrients.find(n => n.attr_id === 205)?.value || 0,
+          fats: food.full_nutrients.find(n => n.attr_id === 204)?.value || 0
+        }
+      }));
+
       setSearchResults(formattedResults);
     } catch (error) {
       console.error('Error searching foods:', error);
+      setSearchResults([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleFoodClick = (food) => {
@@ -100,7 +114,9 @@ function FoodSearch({ onSelectFood }) {
       
       <div className="search-results">
         {searchResults.length === 0 && searchTerm.length >= 2 && !loading && (
-          <div className="no-results">No foods found</div>
+          <div className="no-results">
+            No foods found. Try a different search term.
+          </div>
         )}
         {searchResults.map(food => (
           <div 
@@ -108,11 +124,14 @@ function FoodSearch({ onSelectFood }) {
             className={`food-result ${selectedFood?.id === food.id ? 'selected' : ''}`}
             onClick={() => handleFoodClick(food)}
           >
-            <span className="food-name">{food.name}</span>
+            <div className="food-info">
+              <span className="food-name">{food.name}</span>
+              <span className="food-brand">{food.brandOwner}</span>
+            </div>
             <div className="food-macros">
-              <span>P: {Math.round(food.nutrients.protein)}g</span>
-              <span>C: {Math.round(food.nutrients.carbs)}g</span>
-              <span>F: {Math.round(food.nutrients.fats)}g</span>
+              <span>Protein: {Math.round(food.nutrients.protein)}g</span>
+              <span>Carbs: {Math.round(food.nutrients.carbs)}g</span>
+              <span>Fat: {Math.round(food.nutrients.fats)}g</span>
             </div>
           </div>
         ))}
