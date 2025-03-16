@@ -152,6 +152,11 @@ function App() {
         ))}
       </div>
 
+      <MacroSummary 
+        meals={getTodaysMeals()} 
+        goals={macroGoals}
+      />
+
       <div className="weekly-summary">
         <h2>Weekly Overview</h2>
         {(() => {
