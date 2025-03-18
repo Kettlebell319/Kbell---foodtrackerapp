@@ -4,10 +4,7 @@ import MacroSummary from './components/MacroSummary';
 import './App.css';
 
 function App() {
-  const mealCategories = ['breakfast', 'lunch', 'dinner', 'snacks'];
-
   const [meals, setMeals] = useState(() => {
-    // Load saved meals from localStorage
     const savedMeals = localStorage.getItem('meals');
     return savedMeals ? JSON.parse(savedMeals) : [];
   });
@@ -19,7 +16,6 @@ function App() {
     fats: 70
   });
 
-  // Save meals to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('meals', JSON.stringify(meals));
   }, [meals]);
@@ -29,7 +25,7 @@ function App() {
       ...meal, 
       id: Date.now(),
       date: selectedDate,
-      category: meal.category || 'other'
+      time: new Date().toLocaleTimeString() // Add timestamp
     }]);
   };
 
@@ -39,14 +35,6 @@ function App() {
 
   const getTodaysMeals = () => {
     return meals.filter(meal => meal.date === selectedDate);
-  };
-
-  const groupMealsByCategory = () => {
-    const todaysMeals = getTodaysMeals();
-    return mealCategories.map(category => ({
-      category,
-      meals: todaysMeals.filter(meal => meal.category === category)
-    }));
   };
 
   const calculateWeeklyStats = () => {
@@ -133,23 +121,24 @@ function App() {
 
       <FoodEntry onAddMeal={addMeal} />
       
-      <div className="meals-by-category">
-        {groupMealsByCategory().map(({ category, meals }) => (
-          <div key={category} className="category-section">
-            <h3>{category.charAt(0).toUpperCase() + category.slice(1)}</h3>
-            {meals.map(meal => (
-              <div key={meal.id} className="meal-item">
+      <div className="meals-list">
+        <h2>Today's Foods</h2>
+        {getTodaysMeals()
+          .sort((a, b) => new Date('1970/01/01 ' + a.time) - new Date('1970/01/01 ' + b.time))
+          .map(meal => (
+            <div key={meal.id} className="meal-item">
+              <div className="meal-time">{meal.time}</div>
+              <div className="meal-info">
                 <span className="meal-name">{meal.name}</span>
-                <div className="macro-values">
-                  <span>P: {meal.protein}g</span>
-                  <span>C: {meal.carbs}g</span>
-                  <span>F: {meal.fats}g</span>
-                </div>
-                <button onClick={() => deleteMeal(meal.id)}>Delete</button>
               </div>
-            ))}
-          </div>
-        ))}
+              <div className="macro-values">
+                <span>P: {meal.protein}g</span>
+                <span>C: {meal.carbs}g</span>
+                <span>F: {meal.fats}g</span>
+              </div>
+              <i className="fas fa-trash delete-icon" onClick={() => deleteMeal(meal.id)}></i>
+            </div>
+          ))}
       </div>
 
       <MacroSummary 
