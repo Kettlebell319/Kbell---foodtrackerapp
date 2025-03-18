@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/Kbell---foodtrackerapp/static/css/main.1042b544.css",
-    "main.js": "/Kbell---foodtrackerapp/static/js/main.594dd894.js",
+    "main.css": "/Kbell---foodtrackerapp/static/css/main.ca3bd88e.css",
+    "main.js": "/Kbell---foodtrackerapp/static/js/main.0d24e204.js",
     "index.html": "/Kbell---foodtrackerapp/index.html",
-    "main.1042b544.css.map": "/Kbell---foodtrackerapp/static/css/main.1042b544.css.map",
-    "main.594dd894.js.map": "/Kbell---foodtrackerapp/static/js/main.594dd894.js.map"
+    "main.ca3bd88e.css.map": "/Kbell---foodtrackerapp/static/css/main.ca3bd88e.css.map",
+    "main.0d24e204.js.map": "/Kbell---foodtrackerapp/static/js/main.0d24e204.js.map"
   },
   "entrypoints": [
-    "static/css/main.1042b544.css",
-    "static/js/main.594dd894.js"
+    "static/css/main.ca3bd88e.css",
+    "static/js/main.0d24e204.js"
   ]
 }
