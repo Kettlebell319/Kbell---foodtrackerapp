@@ -5,12 +5,36 @@ const APP_ID = process.env.REACT_APP_NUTRITIONIX_APP_ID;
 const APP_KEY = process.env.REACT_APP_NUTRITIONIX_APP_KEY;
 const API_ENDPOINT = 'https://trackapi.nutritionix.com/v2/search/instant';
 
+// Common serving sizes for different food types
+const COMMON_SERVINGS = {
+  liquid: [
+    { label: 'Cup', grams: 240 },
+    { label: 'Tablespoon', grams: 15 },
+    { label: 'Teaspoon', grams: 5 },
+    { label: 'Fluid ounce', grams: 30 },
+  ],
+  solid: [
+    { label: 'Ounce', grams: 28.35 },
+    { label: 'Cup', grams: 128 },
+    { label: 'Tablespoon', grams: 15 },
+    { label: 'Teaspoon', grams: 5 },
+  ],
+  protein: [
+    { label: 'Ounce', grams: 28.35 },
+    { label: 'Piece', grams: 100 },
+    { label: 'Serving', grams: 85 },
+  ]
+};
+
 function FoodSearch({ onSelectFood }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedFood, setSelectedFood] = useState(null);
   const [servingSize, setServingSize] = useState(100); // default to 100g
+  const [servingUnit, setServingUnit] = useState('g');
+  const [servingOptions, setServingOptions] = useState([]);
+  const [customAmount, setCustomAmount] = useState(100);
 
   useEffect(() => {
     console.log('Current search results:', searchResults);
@@ -60,8 +84,25 @@ function FoodSearch({ onSelectFood }) {
     }
   };
 
+  // Function to guess food type and set appropriate serving options
+  const guessFoodType = (foodName) => {
+    const liquidKeywords = ['milk', 'juice', 'water', 'beverage', 'drink', 'soup'];
+    const proteinKeywords = ['chicken', 'beef', 'fish', 'meat', 'protein'];
+    
+    const lowerName = foodName.toLowerCase();
+    if (liquidKeywords.some(keyword => lowerName.includes(keyword))) {
+      return COMMON_SERVINGS.liquid;
+    } else if (proteinKeywords.some(keyword => lowerName.includes(keyword))) {
+      return COMMON_SERVINGS.protein;
+    }
+    return COMMON_SERVINGS.solid;
+  };
+
   const handleFoodClick = (food) => {
     setSelectedFood(food);
+    setServingOptions(guessFoodType(food.name));
+    setServingUnit('g');
+    setCustomAmount(100);
   };
 
   const handleServingSizeChange = (e) => {
@@ -69,21 +110,39 @@ function FoodSearch({ onSelectFood }) {
     setServingSize(newSize);
   };
 
+  const calculateMacros = (baseAmount) => {
+    if (!selectedFood) return { protein: 0, carbs: 0, fats: 0 };
+    
+    let gramsAmount;
+    if (servingUnit === 'g') {
+      gramsAmount = baseAmount;
+    } else {
+      const option = servingOptions.find(opt => opt.label === servingUnit);
+      gramsAmount = option ? (baseAmount * option.grams) : baseAmount;
+    }
+    
+    const multiplier = gramsAmount / 100;
+    return {
+      protein: Math.round(selectedFood.nutrients.protein * multiplier * 10) / 10,
+      carbs: Math.round(selectedFood.nutrients.carbs * multiplier * 10) / 10,
+      fats: Math.round(selectedFood.nutrients.fats * multiplier * 10) / 10
+    };
+  };
+
   const handleAddFood = () => {
     if (!selectedFood) return;
     
-    const multiplier = servingSize / 100; // convert from base 100g
+    const macros = calculateMacros(customAmount);
     onSelectFood({
-      name: selectedFood.name,
-      protein: Math.round(selectedFood.nutrients.protein * multiplier * 10) / 10,
-      carbs: Math.round(selectedFood.nutrients.carbs * multiplier * 10) / 10,
-      fats: Math.round(selectedFood.nutrients.fats * multiplier * 10) / 10,
-      servingSize,
-      servingUnit: 'g'
+      name: `${selectedFood.name} (${customAmount}${servingUnit})`,
+      ...macros,
+      servingSize: customAmount,
+      servingUnit
     });
     
     setSelectedFood(null);
-    setServingSize(100);
+    setServingUnit('g');
+    setCustomAmount(100);
     setSearchTerm('');
     setSearchResults([]);
   };
@@ -143,19 +202,36 @@ function FoodSearch({ onSelectFood }) {
           <div className="serving-inputs">
             <input
               type="number"
-              value={servingSize}
-              onChange={handleServingSizeChange}
+              value={customAmount}
+              onChange={(e) => setCustomAmount(Number(e.target.value))}
               min="0"
-              step="10"
+              step="1"
             />
-            <span>grams</span>
+            <select 
+              value={servingUnit}
+              onChange={(e) => setServingUnit(e.target.value)}
+            >
+              <option value="g">grams</option>
+              {servingOptions.map((option, index) => (
+                <option key={index} value={option.label}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <button onClick={handleAddFood}>Add Food</button>
           </div>
           <div className="adjusted-macros">
-            <p>Macros for {servingSize}g:</p>
-            <span>Protein: {Math.round(selectedFood.nutrients.protein * servingSize / 100)}g</span>
-            <span>Carbs: {Math.round(selectedFood.nutrients.carbs * servingSize / 100)}g</span>
-            <span>Fats: {Math.round(selectedFood.nutrients.fats * servingSize / 100)}g</span>
+            <p>Macros for {customAmount} {servingUnit}:</p>
+            {(() => {
+              const macros = calculateMacros(customAmount);
+              return (
+                <>
+                  <span>Protein: {macros.protein}g</span>
+                  <span>Carbs: {macros.carbs}g</span>
+                  <span>Fats: {macros.fats}g</span>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FoodEntry from './components/FoodEntry';
 import MacroSummary from './components/MacroSummary';
+import MacroCalculator from './components/MacroCalculator';
 import './App.css';
 
 function App() {
@@ -83,9 +84,21 @@ function App() {
     };
   };
 
+  const handleSetMacroGoals = (macros) => {
+    setMacroGoals({
+      protein: macros.protein,
+      carbs: macros.carbs,
+      fats: macros.fats
+    });
+    // Save to localStorage
+    localStorage.setItem('macroGoals', JSON.stringify(macros));
+  };
+
   return (
     <div className="App">
       <h1>Macro Tracker</h1>
+      
+      <MacroCalculator onSetGoals={handleSetMacroGoals} />
       
       <div className="date-selector">
         <input 

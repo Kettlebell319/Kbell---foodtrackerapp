@@ -39,17 +39,6 @@ function FoodEntry({ onAddMeal }) {
       <FoodSearch onSelectFood={handleFoodSelect} />
       
       <form onSubmit={handleSubmit} className="food-entry">
-        <select
-          value={food.category}
-          onChange={(e) => setFood({ ...food, category: e.target.value })}
-        >
-          {mealCategories.map(category => (
-            <option key={category} value={category}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </option>
-          ))}
-        </select>
-        
         <input
           type="text"
           placeholder="Food name"
